@@ -58,7 +58,7 @@ int nouvelle_saisie(ChaineDyn *chaine, FILE *fichier){
         char *nouveau_buffer = malloc(nouvelle_taille);
 
         if (nouveau_buffer == NULL) {
-            fprintf(stderr, "Erreur d'allocation de mÃ©moire\n");
+            fprintf(stderr, "Erreur d'allocation de mémoire\n");
             return 1;
         }
         memcpy(nouveau_buffer, chaine->buffer, chaine->taille_allouee);
