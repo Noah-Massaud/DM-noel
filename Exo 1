@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char *buffer;
+    int taille_allouee;
+    int offset;
+} ChaineDyn;
+
+
+ChaineDyn *chaine_init(int taille_initiale){
+    ChaineDyn *cd = malloc(sizeof(ChaineDyn));
+    cd->buffer = malloc(sizeof(char)*taille_initiale);
+    cd->taille_allouee = taille_initiale;
+    cd->offset=0;
+    return cd;
+}
+
+void chaine_free(ChaineDyn *chaine){
+    free(chaine->buffer);
+    free(chaine);
+}
+
+void chaine_affiche(ChaineDyn *chaine){
+    printf("%s %d %d\n", chaine->buffer, chaine->taille_allouee, chaine->offset);
+}
+
+char chaine_get(ChaineDyn *chaine, int index){
+    if (index<0 || index>=chaine->taille_allouee){
+        printf("list index out of range\n");
+        return ' ';
+    }
+    return chaine->buffer[index];
+}
+
+void chaine_set(ChaineDyn *chaine, int index, char valeur){
+    if (index<0 || index>=chaine->taille_allouee){
+        printf("list index out of range\n");
+        return;
+    }
+    chaine->buffer[index] = valeur;
+}
+
+int nouvelle_saisie(ChaineDyn *chaine, FILE *fichier){
+    while (1){
+        //printf("Veuillez saisir une nouvelle chaine :\n");
+        if (fgets(chaine->buffer + chaine->offset, chaine->taille_allouee 
+                   - chaine->offset, fichier) == NULL)
+            return 1;
+
+        if (strchr(chaine->buffer + chaine->offset, '\n') != NULL)
+            return 0;
+
+        chaine->offset = chaine->taille_allouee - 1;
+
+        int nouvelle_taille = chaine->taille_allouee * 2;
+        char *nouveau_buffer = malloc(nouvelle_taille);
+
+        if (nouveau_buffer == NULL) {
+            fprintf(stderr, "Erreur d'allocation de mÃ©moire\n");
+            return 1;
+        }
+        memcpy(nouveau_buffer, chaine->buffer, chaine->taille_allouee);
+        free(chaine->buffer);
+        chaine->buffer = nouveau_buffer;
+        chaine->taille_allouee = nouvelle_taille;
+    }
+}
+
+int main(void){
+    ChaineDyn *cd = chaine_init(10);
+    FILE *fichier = fopen("sauvegarde.txt", "r");
+    nouvelle_saisie(cd, fichier);
+    chaine_affiche(cd);
+    chaine_free(cd);
+    return 0;
+}
